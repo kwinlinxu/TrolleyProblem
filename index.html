@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教育現場：電車難題模擬</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 React 與 ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- 引入 Babel 以編譯 JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 引入 FontAwesome 圖示 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #1a202c; /* 深色背景營造嚴肅氛圍 */
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 電車轉場動畫 */
+        .train-transition {
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 震動與爆炸特效 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .crashed-card {
+            animation: shake 0.5s;
+            animation-iteration-count: 2;
+            filter: grayscale(100%) brightness(0.5);
+            pointer-events: none;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .explosion {
+            position: absolute;
+            font-size: 5rem;
+            animation: explode 0.8s forwards;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .blood-splatter {
+            background: radial-gradient(circle, rgba(220,38,38,0.8) 0%, rgba(220,38,38,0) 70%);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const scenarios = [
+            {
+                id: 1,
+                theme: "資源與成就",
+                title: "第一關：資源分配",
+                left: { id: "A", text: "5位快被退學的體育班學生" },
+                right: { id: "B", text: "1位保證錄取醫學院的天才" }
+            },
+            {
+                id: 2,
+                theme: "正義與飯碗",
+                title: "第二關：生涯抉擇",
+                left: { id: "A", text: "你苦讀五年、好不容易考上的「正式教師資格」" },
+                right: { id: "B", text: "三位被校方當作升學醜聞替罪羔羊的「無辜學生」" }
+            },
+            {
+                id: 3,
+                theme: "快樂與壓力",
+                title: "第三關：價值觀",
+                left: { id: "A", text: "全班100%的第一志願升學率與家長的讚賞" },
+                right: { id: "B", text: "學生們快樂、無憂無慮且睡得飽的青春期" }
+            },
+            {
+                id: 4,
+                theme: "融合教育的掙扎",
+                title: "第四關：受教權天平",
+                left: { id: "A", text: "一位極渴望學習，但頻繁崩潰干擾上課的特教生" },
+                right: { id: "B", text: "班上另外29位面臨大考，急需安靜環境的普通生" }
+            },
+            {
+                id: 5,
+                theme: "大局與個體",
+                title: "第五關：校園政治",
+                left: { id: "A", text: "全校500名學生期盼已久的全新教學大樓與資金" },
+                right: { id: "B", text: "一位被權貴子弟霸凌，即將被校方逼迫轉學的受害學生" }
+            },
+            {
+                id: 6,
+                theme: "法理與人情",
+                title: "第六關：誠實的代價",
+                left: { id: "A", text: "一位因家境絕望而作弊，即將被退學斷送未來的清寒生" },
+                right: { id: "B", text: "一位每天熬夜苦讀，卻因你私下包庇前者而落榜的正直學生" }
+            },
+            {
+                id: 7,
+                theme: "保護與傷害",
+                title: "第七關：家庭界線",
+                left: { id: "A", text: "學生免於家暴的「人身安全」（你選擇依法通報安置）" },
+                right: { id: "B", text: "學生對你的「絕對信任」與他的原生家庭（他哭求你不要通報）" }
+            },
+            {
+                id: 8,
+                theme: "熱情與邊界",
+                title: "第八關：自我燃燒",
+                left: { id: "A", text: "你自己的「身心健康」、「婚姻生活」與「休息時間」" },
+                right: { id: "B", text: "一名在深夜傳來遺書，極度需要你立刻回覆與陪伴的絕望學生" }
+            },
+            {
+                id: 9,
+                theme: "終極荒謬",
+                title: "第九關：靈魂拷問",
+                left: { id: "A", text: "一整輛載滿幼稚園小孩的校車" },
+                right: { id: "B", text: "發誓永遠愛你、絕對挺你的死忠粉絲們" }
+            }
+        ];
+
+        function App() {
+            // 遊戲狀態: 'welcome', 'playing', 'result'
+            const [gameState, setGameState] = React.useState('welcome');
+            const [currentScenarioIndex, setCurrentScenarioIndex] = React.useState(0);
+            const [choices, setChoices] = React.useState([]);
+            
+            // 動畫狀態: 'idle', 'junction', 'left', 'right', 'crashed_left', 'crashed_right'
+            const [trainPhase, setTrainPhase] = React.useState('idle');
+            const [isAnimating, setIsAnimating] = React.useState(false);
+
+            const currentScenario = scenarios[currentScenarioIndex];
+
+            const handleChoice = (direction) => {
+                if (isAnimating) return;
+                setIsAnimating(true);
+                
+                // 第一階段：電車開到岔路口
+                setTrainPhase('junction');
+                
+                setTimeout(() => {
+                    // 第二階段：電車轉向選擇的軌道
+                    setTrainPhase(direction);
+                    
+                    setTimeout(() => {
+                        // 第三階段：撞擊與爆炸
+                        setTrainPhase(`crashed_${direction}`);
+                        
+                        // 記錄選擇（紀錄被犧牲的那一方）
+                        const sacrificed = direction === 'left' ? currentScenario.left : currentScenario.right;
+                        const saved = direction === 'left' ? currentScenario.right : currentScenario.left;
+                        
+                        setChoices(prev => [...prev, {
+                            scenario: currentScenario,
+                            sacrificed: sacrificed,
+                            saved: saved
+                        }]);
+
+                        setIsAnimating(false);
+                    }, 800);
+                }, 800);
+            };
+
+            const nextScenario = () => {
+                if (currentScenarioIndex < scenarios.length - 1) {
+                    setCurrentScenarioIndex(prev => prev + 1);
+                    setTrainPhase('idle');
+                } else {
+                    setGameState('result');
+                }
+            };
+
+            const resetGame = () => {
+                setGameState('welcome');
+                setCurrentScenarioIndex(0);
+                setChoices([]);
+                setTrainPhase('idle');
+            };
+
+            if (gameState === 'welcome') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                        {/* 增加背景光暈裝飾 */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-900/10 rounded-full blur-[100px] pointer-events-none"></div>
+                        
+                        <div className="max-w-2xl bg-gray-800/90 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-700 relative z-10">
+                            <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400 drop-shadow-sm">
+                                <i className="fa-solid fa-train-tram mr-3 text-red-500"></i>
+                                教育現場：電車難題
+                            </h1>
+                            <p className="text-xl mb-4 text-gray-300 font-medium tracking-wide">身為未來的教師，你將面臨無數無法完美解決的兩難。</p>
+                            <div className="text-left bg-gray-900/80 p-6 rounded-xl mb-8 text-gray-300 leading-relaxed border border-gray-700/50 shadow-inner">
+                                <p className="mb-3 text-gray-100 font-semibold border-b border-gray-700 pb-2"><i className="fa-solid fa-list-check mr-2"></i>模擬規則：</p>
+                                <p className="mb-2">1. 你是一輛煞車失靈的「教育列車」駕駛。</p>
+                                <p className="mb-2">2. 前方軌道一分為二，兩邊都有你極力想避免的悲劇，或是你珍視的教育價值。</p>
+                                <p className="mb-2">3. 你 <span className="text-red-400 font-bold bg-red-900/30 px-2 py-0.5 rounded">必須選擇</span> 將列車開往其中一邊。</p>
+                                <p>4. 列車輾過的地方，該選項的<span className="text-red-400 font-bold">負面後果就會真實發生</span>。你願意為了保全哪一方，而弄髒自己的雙手？</p>
+                            </div>
+                            <button 
+                                onClick={() => setGameState('playing')}
+                                className="bg-gradient-to-b from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white font-bold py-4 px-12 rounded-full text-xl transition-all transform hover:scale-105 shadow-[0_10px_20px_rgba(220,38,38,0.4)] hover:shadow-[0_15px_30px_rgba(220,38,38,0.6)] border border-red-400/50"
+                            >
+                                啟動列車
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'result') {
+                return (
+                    <div className="min-h-screen p-8 flex flex-col items-center bg-gray-900">
+                        <div className="max-w-4xl w-full bg-gray-800 p-8 rounded-2xl shadow-2xl">
+                            <h2 className="text-3xl font-bold mb-6 text-center text-white">
+                                <i className="fa-solid fa-clipboard-list mr-3 text-blue-400"></i>
+                                你的教育軌跡結算
+                            </h2>
+                            <p className="text-center text-gray-400 mb-8">看看你在這些兩難中，選擇輾過了什麼，又保全了什麼。</p>
+                            
+                            <div className="space-y-6 mb-10">
+                                {choices.map((choice, index) => (
+                                    <div key={index} className="bg-gray-700 p-5 rounded-lg border-l-4 border-red-500 flex flex-col md:flex-row gap-4">
+                                        <div className="flex-1">
+                                            <h3 className="font-bold text-gray-300 mb-4 text-xl">Q{index + 1}: {choice.scenario.theme}</h3>
+                                            <p className="text-lg text-green-400 mb-2"><i className="fa-solid fa-check mr-2"></i><strong>你選擇保全了：</strong><br/><span className="text-white font-bold text-xl ml-8">{choice.saved.text}</span></p>
+                                            <p className="text-lg text-red-400"><i className="fa-solid fa-truck-fast mr-2"></i><strong>你無情輾過了：</strong><br/><span className="text-gray-400 font-bold text-xl ml-8 line-through decoration-red-500 decoration-4">{choice.sacrificed.text}</span></p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-800 mb-8">
+                                <h3 className="text-xl font-bold text-blue-300 mb-4">💡 給師培生的課堂反思（小組討論）</h3>
+                                <ul className="list-disc pl-5 space-y-3 text-gray-300">
+                                    <li>在剛剛的選擇中，你是基於<strong>「效益論」</strong>（追求多數人的最大利益）還是<strong>「義務論」</strong>（堅持某些不可打破的道德原則）來做決定？</li>
+                                    <li>有哪個選擇讓你感到特別痛苦？為什麼？</li>
+                                    <li>如果在真實教育現場，面對這些選項，我們是否有第三條路（The Third Alternative）可以走？該如何創造？</li>
+                                    <li>這份模擬如何改變你對「好老師」的定義？</li>
+                                </ul>
+                            </div>
+
+                            <div className="text-center">
+                                <button 
+                                    onClick={resetGame}
+                                    className="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-full transition"
+                                >
+                                    <i className="fa-solid fa-rotate-right mr-2"></i> 重新體驗
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // 電車位置邏輯 (使用百分比)
+            let trainStyle = {
+                left: '50%',
+                top: '85%',
+                transform: 'translate(-50%, -50%) rotate(0deg)',
+            };
+
+            if (trainPhase === 'junction') {
+                trainStyle = {
+                    left: '50%',
+                    top: '55%',
+                    transform: 'translate(-50%, -50%) rotate(0deg)',
+                };
+            } else if (trainPhase === 'left' || trainPhase === 'crashed_left') {
+                trainStyle = {
+                    left: '25%',
+                    top: '25%',
+                    transform: 'translate(-50%, -50%) rotate(-35deg)',
+                };
+            } else if (trainPhase === 'right' || trainPhase === 'crashed_right') {
+                trainStyle = {
+                    left: '75%',
+                    top: '25%',
+                    transform: 'translate(-50%, -50%) rotate(35deg)',
+                };
+            }
+
+            const showCrashLeft = trainPhase === 'crashed_left';
+            const showCrashRight = trainPhase === 'crashed_right';
+            const isCrashed = showCrashLeft || showCrashRight;
+
+            return (
+                <div className="min-h-screen flex flex-col p-4 md:p-8">
+                    {/* Header */}
+                    <div className="text-center mb-8 z-10 relative">
+                        <div className="inline-block mb-3">
+                            <span className="bg-blue-900/40 text-blue-300 border border-blue-700/50 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wider shadow-sm backdrop-blur-sm">
+                                <i className="fa-solid fa-tag mr-2 opacity-70"></i>{currentScenario.theme}
+                            </span>
+                        </div>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-100 tracking-tight drop-shadow-md">{currentScenario.title}</h2>
+                        <p className="text-red-400/90 font-medium mt-5 text-sm md:text-base bg-red-950/40 inline-block px-6 py-2 rounded-full border border-red-900/50 backdrop-blur-sm shadow-inner">
+                            <i className="fa-solid fa-triangle-exclamation mr-2"></i>提示：點擊你想【犧牲 / 撞擊】的那一方
+                        </p>
+                    </div>
+
+                    {/* Game Container */}
+                    <div className="flex-1 relative w-full max-w-5xl mx-auto bg-gray-800 rounded-3xl overflow-hidden shadow-2xl border-4 border-gray-700 flex flex-col">
+                        
+                        {/* 軌道 SVG 繪製 */}
+                        <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none" viewBox="0 0 100 100">
+                            {/* 主軌道 */}
+                            <line x1="50" y1="100" x2="50" y2="55" stroke="#4a5568" strokeWidth="3" strokeLinecap="round" />
+                            <line x1="48" y1="100" x2="48" y2="55" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <line x1="52" y1="100" x2="52" y2="55" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+                            
+                            {/* 左岔路 */}
+                            <line x1="50" y1="55" x2="25" y2="20" stroke="#4a5568" strokeWidth="3" strokeLinecap="round" />
+                            <line x1="48" y1="55" x2="23" y2="20" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <line x1="52" y1="55" x2="27" y2="20" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+
+                            {/* 右岔路 */}
+                            <line x1="50" y1="55" x2="75" y2="20" stroke="#4a5568" strokeWidth="3" strokeLinecap="round" />
+                            <line x1="48" y1="55" x2="73" y2="20" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+                            <line x1="52" y1="55" x2="77" y2="20" stroke="#a0aec0" strokeWidth="0.5" strokeDasharray="2,2" />
+                        </svg>
+
+                        {}
+                        <div className="absolute top-[10%] w-full px-4 md:px-12 flex justify-between z-10">
+                            {}
+                            {/* 左側選項 */}
+                            <div 
+                                onClick={() => !isCrashed && handleChoice('left')}
+                                className={`group w-[45%] md:w-[42%] rounded-3xl p-6 md:p-10 transition-all duration-500 relative flex flex-col justify-center items-center min-h-[260px] md:min-h-[300px] border shadow-[0_15px_35px_rgba(0,0,0,0.5)] overflow-hidden
+                                    ${showCrashLeft 
+                                        ? 'bg-red-950 border-red-500 crashed-card shadow-[0_0_50px_rgba(220,38,38,0.8)]' 
+                                        : 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-600/50 hover:border-red-500/70 cursor-pointer hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(220,38,38,0.4)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                                    }`}
+                            >
+                                {/* 質感背景裝飾與 Hover 漸層 */}
+                                {!isCrashed && <div className="absolute inset-0 bg-gradient-to-t from-red-600/0 via-transparent to-transparent group-hover:from-red-900/30 transition-all duration-500 z-0 pointer-events-none"></div>}
+                                {/* 卡片網格紋理 (增加質感細節) */}
+                                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+                                
+                                {showCrashLeft && <div className="absolute inset-0 blood-splatter z-0 opacity-90"></div>}
+                                
+                                {}
+                                <div className="relative z-10 flex flex-col h-full w-full justify-center items-center">
+                                    <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/50 border border-white/10 text-gray-300 text-xs md:text-sm font-bold tracking-widest py-1.5 px-4 rounded-full backdrop-blur-md shadow-lg">
+                                        <i className="fa-solid fa-route mr-2 opacity-70"></i>軌道 A
+                                    </div>
+                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-100 text-center leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide group-hover:scale-[1.03] transition-transform duration-500 mt-8 px-2 md:px-6">
+                                        {currentScenario.left.text}
+                                    </p>
+                                </div>
+                                {showCrashLeft && <div className="explosion top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">💥</div>}
+                            </div>
+
+                            {}
+                            {/* 右側選項 */}
+                            <div 
+                                onClick={() => !isCrashed && handleChoice('right')}
+                                className={`group w-[45%] md:w-[42%] rounded-3xl p-6 md:p-10 transition-all duration-500 relative flex flex-col justify-center items-center min-h-[260px] md:min-h-[300px] border shadow-[0_15px_35px_rgba(0,0,0,0.5)] overflow-hidden
+                                    ${showCrashRight 
+                                        ? 'bg-red-950 border-red-500 crashed-card shadow-[0_0_50px_rgba(220,38,38,0.8)]' 
+                                        : 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-600/50 hover:border-red-500/70 cursor-pointer hover:-translate-y-3 hover:shadow-[0_25px_50px_-12px_rgba(220,38,38,0.4)] shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]'
+                                    }`}
+                            >
+                                {/* 質感背景裝飾與 Hover 漸層 */}
+                                {!isCrashed && <div className="absolute inset-0 bg-gradient-to-t from-red-600/0 via-transparent to-transparent group-hover:from-red-900/30 transition-all duration-500 z-0 pointer-events-none"></div>}
+                                {/* 卡片網格紋理 (增加質感細節) */}
+                                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
+                                
+                                {showCrashRight && <div className="absolute inset-0 blood-splatter z-0 opacity-90"></div>}
+                                
+                                {}
+                                <div className="relative z-10 flex flex-col h-full w-full justify-center items-center">
+                                    <div className="absolute top-2 left-2 md:top-4 md:left-4 bg-black/50 border border-white/10 text-gray-300 text-xs md:text-sm font-bold tracking-widest py-1.5 px-4 rounded-full backdrop-blur-md shadow-lg">
+                                        <i className="fa-solid fa-route mr-2 opacity-70"></i>軌道 B
+                                    </div>
+                                    <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-100 text-center leading-snug drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide group-hover:scale-[1.03] transition-transform duration-500 mt-8 px-2 md:px-6">
+                                        {currentScenario.right.text}
+                                    </p>
+                                </div>
+                                {showCrashRight && <div className="explosion top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">💥</div>}
+                            </div>
+                        </div>
+
+                        {/* 電車 */}
+                        <div 
+                            className="absolute train-transition flex flex-col items-center justify-center z-20"
+                            style={trainStyle}
+                        >
+                            <div className="text-6xl md:text-7xl filter drop-shadow-lg transform transition-transform">
+                                🚋
+                            </div>
+                            <div className="mt-2 bg-gray-900 text-xs px-2 py-1 rounded text-gray-400 font-mono tracking-widest uppercase shadow">
+                                Edu-Train
+                            </div>
+                        </div>
+
+                        {/* 撞擊後的提示與下一步 */}
+                        {isCrashed && (
+                            <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 z-30 flex flex-col items-center">
+                                <div className="bg-red-900/80 backdrop-blur text-white px-6 py-3 rounded-lg shadow-2xl mb-4 border border-red-500 animate-pulse text-center">
+                                    <p className="font-bold text-lg">你選擇犧牲了 {showCrashLeft ? '選項 A' : '選項 B'}！</p>
+                                    <p className="text-sm mt-1">這就是你的教育現場。</p>
+                                </div>
+                                <button 
+                                    onClick={nextScenario}
+                                    className="bg-white text-gray-900 hover:bg-gray-200 font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105"
+                                >
+                                    {currentScenarioIndex < scenarios.length - 1 ? '前往下一個挑戰 ➡️' : '查看最終結算 📊'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* 進度條 */}
+                    <div className="max-w-5xl mx-auto w-full mt-6">
+                        <div className="flex justify-between text-xs text-gray-500 mb-2">
+                            <span>進度</span>
+                            <span>{currentScenarioIndex + 1} / {scenarios.length}</span>
+                        </div>
+                        <div className="w-full bg-gray-800 rounded-full h-2">
+                            <div className="bg-red-500 h-2 rounded-full transition-all duration-500" style={{ width: `${((currentScenarioIndex + 1) / scenarios.length) * 100}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
