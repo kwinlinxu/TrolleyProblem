@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>教育現場：電車難題模擬</title>
+    <title>極限電車難題：人際關係篇</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 React 與 ReactDOM -->
@@ -77,66 +77,38 @@
         const scenarios = [
             {
                 id: 1,
-                theme: "資源與成就",
-                title: "第一關：資源分配",
-                left: { id: "A", text: "5位快被退學的體育班學生" },
-                right: { id: "B", text: "1位保證錄取醫學院的天才" }
+                theme: "生命價值",
+                title: "第一關：生命價值局",
+                left: { id: "A", text: "1名8歲小孩" },
+                right: { id: "B", text: "5名成年人" }
             },
             {
                 id: 2,
-                theme: "正義與飯碗",
-                title: "第二關：生涯抉擇",
-                left: { id: "A", text: "你苦讀五年、好不容易考上的「正式教師資格」" },
-                right: { id: "B", text: "三位被校方當作升學醜聞替罪羔羊的「無辜學生」" }
+                theme: "情義與數量",
+                title: "第二關：隊友情義局",
+                left: { id: "A", text: "最好的隊友" },
+                right: { id: "B", text: "3名陌生人" }
             },
             {
                 id: 3,
-                theme: "快樂與壓力",
-                title: "第三關：價值觀",
-                left: { id: "A", text: "全班100%的第一志願升學率與家長的讚賞" },
-                right: { id: "B", text: "學生們快樂、無憂無慮且睡得飽的青春期" }
+                theme: "過去的羈絆",
+                title: "第三關：前任生死局",
+                left: { id: "A", text: "前女友／前男友" },
+                right: { id: "B", text: "1名陌生小孩" }
             },
             {
                 id: 4,
-                theme: "融合教育的掙扎",
-                title: "第四關：受教權天平",
-                left: { id: "A", text: "一位極渴望學習，但頻繁崩潰干擾上課的特教生" },
-                right: { id: "B", text: "班上另外29位面臨大考，急需安靜環境的普通生" }
+                theme: "摯愛的重量",
+                title: "第四關：愛情終極局",
+                left: { id: "A", text: "現任女友／男友" },
+                right: { id: "B", text: "你的3名隊友" }
             },
             {
                 id: 5,
-                theme: "大局與個體",
-                title: "第五關：校園政治",
-                left: { id: "A", text: "全校500名學生期盼已久的全新教學大樓與資金" },
-                right: { id: "B", text: "一位被權貴子弟霸凌，即將被校方逼迫轉學的受害學生" }
-            },
-            {
-                id: 6,
-                theme: "法理與人情",
-                title: "第六關：誠實的代價",
-                left: { id: "A", text: "一位因家境絕望而作弊，即將被退學斷送未來的清寒生" },
-                right: { id: "B", text: "一位每天熬夜苦讀，卻因你私下包庇前者而落榜的正直學生" }
-            },
-            {
-                id: 7,
-                theme: "保護與傷害",
-                title: "第七關：家庭界線",
-                left: { id: "A", text: "學生免於家暴的「人身安全」（你選擇依法通報安置）" },
-                right: { id: "B", text: "學生對你的「絕對信任」與他的原生家庭（他哭求你不要通報）" }
-            },
-            {
-                id: 8,
-                theme: "熱情與邊界",
-                title: "第八關：自我燃燒",
-                left: { id: "A", text: "你自己的「身心健康」、「婚姻生活」與「休息時間」" },
-                right: { id: "B", text: "一名在深夜傳來遺書，極度需要你立刻回覆與陪伴的絕望學生" }
-            },
-            {
-                id: 9,
-                theme: "終極荒謬",
-                title: "第九關：靈魂拷問",
-                left: { id: "A", text: "一整輛載滿幼稚園小孩的校車" },
-                right: { id: "B", text: "發誓永遠愛你、絕對挺你的死忠粉絲們" }
+                theme: "親情與道德",
+                title: "第五關：親情大抉擇",
+                left: { id: "A", text: "爸爸／媽媽" },
+                right: { id: "B", text: "5名陌生小孩" }
             }
         ];
 
@@ -201,21 +173,22 @@
             if (gameState === 'welcome') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+                        {}
                         {/* 增加背景光暈裝飾 */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-900/10 rounded-full blur-[100px] pointer-events-none"></div>
                         
                         <div className="max-w-2xl bg-gray-800/90 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-700 relative z-10">
                             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-400 drop-shadow-sm">
                                 <i className="fa-solid fa-train-tram mr-3 text-red-500"></i>
-                                教育現場：電車難題
+                                極限電車難題：人際關係篇
                             </h1>
-                            <p className="text-xl mb-4 text-gray-300 font-medium tracking-wide">身為未來的教師，你將面臨無數無法完美解決的兩難。</p>
+                            <p className="text-xl mb-4 text-gray-300 font-medium tracking-wide">從經典數量難題，到身邊摯愛的靈魂拷問。</p>
                             <div className="text-left bg-gray-900/80 p-6 rounded-xl mb-8 text-gray-300 leading-relaxed border border-gray-700/50 shadow-inner">
                                 <p className="mb-3 text-gray-100 font-semibold border-b border-gray-700 pb-2"><i className="fa-solid fa-list-check mr-2"></i>模擬規則：</p>
-                                <p className="mb-2">1. 你是一輛煞車失靈的「教育列車」駕駛。</p>
-                                <p className="mb-2">2. 前方軌道一分為二，兩邊都有你極力想避免的悲劇，或是你珍視的教育價值。</p>
+                                <p className="mb-2">1. 你是一輛煞車失靈的「命運列車」駕駛。</p>
+                                <p className="mb-2">2. 前方軌道一分為二，兩邊都有你極力想避免的悲劇，或你珍視的關係。</p>
                                 <p className="mb-2">3. 你 <span className="text-red-400 font-bold bg-red-900/30 px-2 py-0.5 rounded">必須選擇</span> 將列車開往其中一邊。</p>
-                                <p>4. 列車輾過的地方，該選項的<span className="text-red-400 font-bold">負面後果就會真實發生</span>。你願意為了保全哪一方，而弄髒自己的雙手？</p>
+                                <p>4. 列車輾過的地方，該選項的<span className="text-red-400 font-bold">悲劇就會真實發生</span>。你會如何抉擇？</p>
                             </div>
                             <button 
                                 onClick={() => setGameState('playing')}
@@ -231,12 +204,13 @@
             if (gameState === 'result') {
                 return (
                     <div className="min-h-screen p-8 flex flex-col items-center bg-gray-900">
+                        {}
                         <div className="max-w-4xl w-full bg-gray-800 p-8 rounded-2xl shadow-2xl">
                             <h2 className="text-3xl font-bold mb-6 text-center text-white">
                                 <i className="fa-solid fa-clipboard-list mr-3 text-blue-400"></i>
-                                你的教育軌跡結算
+                                你的抉擇軌跡結算
                             </h2>
-                            <p className="text-center text-gray-400 mb-8">看看你在這些兩難中，選擇輾過了什麼，又保全了什麼。</p>
+                            <p className="text-center text-gray-400 mb-8">看看你在這些兩難中，選擇輾過了誰，又保全了誰。</p>
                             
                             <div className="space-y-6 mb-10">
                                 {choices.map((choice, index) => (
@@ -251,12 +225,12 @@
                             </div>
 
                             <div className="bg-blue-900/30 p-6 rounded-lg border border-blue-800 mb-8">
-                                <h3 className="text-xl font-bold text-blue-300 mb-4">💡 給師培生的課堂反思（小組討論）</h3>
+                                <h3 className="text-xl font-bold text-blue-300 mb-4">💡 價值觀反思（小組討論）</h3>
                                 <ul className="list-disc pl-5 space-y-3 text-gray-300">
-                                    <li>在剛剛的選擇中，你是基於<strong>「效益論」</strong>（追求多數人的最大利益）還是<strong>「義務論」</strong>（堅持某些不可打破的道德原則）來做決定？</li>
-                                    <li>有哪個選擇讓你感到特別痛苦？為什麼？</li>
-                                    <li>如果在真實教育現場，面對這些選項，我們是否有第三條路（The Third Alternative）可以走？該如何創造？</li>
-                                    <li>這份模擬如何改變你對「好老師」的定義？</li>
+                                    <li>在第一關（1對5），你是否選擇了「效益論」（追求多數存活）？</li>
+                                    <li>當軌道上的人變成「隊友」、「前任」或「現任」時，你的選擇標準改變了嗎？為什麼人數優勢不再是唯一的考量？</li>
+                                    <li>「最好的朋友」與「4名隊友」的選擇中，團隊情誼和摯友之間，哪一個對你來說更沉重？</li>
+                                    <li>這些選擇反映了你在人際關係與道德判斷上，最看重什麼特質？</li>
                                 </ul>
                             </div>
 
